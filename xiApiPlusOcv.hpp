@@ -175,11 +175,11 @@ typedef enum
 #include <m3api/xiApi.h> // Linux, OSX 
 #endif
 //#include <xiExt.h>
-#include <stdio.h>
-#include<opencv2/opencv.hpp>
 
+#include<opencv2/opencv.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
-#include<iostream>
+
+
 // debug support
 
 #define DBFIN  "xAPIp:"

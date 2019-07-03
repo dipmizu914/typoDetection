@@ -5,6 +5,18 @@
 
 using namespace cv;
 using namespace std;
+
+#pragma region Parameters
+int cam_height=400;
+int cam_width = 500;
+
+cv::Point keyLeftUpper = cv::Point(100, 100);
+cv::Point keyRightDown = cv::Point(340, 310);
+
+
+#pragma endregion
+
+
 int main(int argc, char* argv[])
 {
 #pragma region HSC_OPEN
@@ -16,6 +28,9 @@ int main(int argc, char* argv[])
 		// Retrieving a handle to the camera device
 		printf("Opening first camera...\n");
 		cam.OpenFirst();
+
+		cam.SetHeight(cam_height);
+		cam.SetWidth(cam_width);
 		
 		// Set exposure
 		cam.SetExposureTime(1000); //10000 us = 10 ms
@@ -27,8 +42,10 @@ int main(int argc, char* argv[])
 		printf("First pixel value \n");
 		XI_IMG_FORMAT format = cam.GetImageDataFormat();
 #pragma endregion
+		
 #pragma region Main_thread
-		while (1) {
+		int key = 0;
+		while (key!='q') {
 			Mat cv_mat_image = cam.GetNextImageOcvMat();
 			if (format == XI_RAW16 || format == XI_MONO16)
 				normalize(cv_mat_image, cv_mat_image, 0, 65536, NORM_MINMAX, -1, Mat());// 0 - 65536, 16 bit unsigned integer range
@@ -71,7 +88,10 @@ int main(int argc, char* argv[])
 			}
 			
 			cv::cvtColor(dst, dst, cv::COLOR_GRAY2RGB);
+			cv::rectangle(dst, keyLeftUpper, keyRightDown, cv::Scalar(0, 0, 200), 3, 4);
 			cv::circle(dst, cv::Point(x, y), 10, cv::Scalar(0, 200, 0), 4, 8);
+
+			
 
 			QueryPerformanceCounter(&end);
 			
@@ -81,7 +101,7 @@ int main(int argc, char* argv[])
 
 			//cout << time << endl;
 
-			cvWaitKey(1);
+			key=cvWaitKey(1);
 			
 		}
 #pragma endregion
