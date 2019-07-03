@@ -1,12 +1,13 @@
 // xiApiPlusOcvExample.cpp : program opens first camera, captures and displays 40 images
 
-#include <stdio.h>
-#include "xiApiPlusOcv.hpp"
+
+#include"common.h"
 
 using namespace cv;
 using namespace std;
 int main(int argc, char* argv[])
 {
+#pragma region HSC_OPEN
 	try
 	{
 		// Sample for XIMEA OpenCV
@@ -25,10 +26,20 @@ int main(int argc, char* argv[])
 		
 		printf("First pixel value \n");
 		XI_IMG_FORMAT format = cam.GetImageDataFormat();
+#pragma endregion
+#pragma region Main_thread
 		while (1) {
 			Mat cv_mat_image = cam.GetNextImageOcvMat();
 			if (format == XI_RAW16 || format == XI_MONO16)
 				normalize(cv_mat_image, cv_mat_image, 0, 65536, NORM_MINMAX, -1, Mat());// 0 - 65536, 16 bit unsigned integer range
+
+
+			LARGE_INTEGER freq;
+			QueryPerformanceFrequency(&freq);
+			
+			LARGE_INTEGER start, end;
+			QueryPerformanceCounter(&start);
+
 
 			Mat dst;
 			cv::threshold(cv_mat_image, dst, 0, 30, cv::THRESH_BINARY | cv::THRESH_OTSU);
@@ -37,29 +48,45 @@ int main(int argc, char* argv[])
 			vector<vector<cv::Point>> contours;
 
 			cv::findContours(dst, contours, cv::RETR_LIST ,cv::CHAIN_APPROX_NONE);
-			int y = dst.rows;
-			int x;
 
+			double marea = 0.0;
+			int max_area_contour = -1;
 			for (int i = 0; i < contours.size(); i++) {
-				for (int j = 0; j < contours[i].size(); j++) {
-					cv::Point p = contours[i][j];
-					if (p.y < y) {
-						y = p.y;
-						x = p.x;
-					}
+				double area = contourArea(contours.at(i));
+				if (marea < area) {
+					marea = area;
+					max_area_contour = i;
 				}
 			}
+			int y = dst.rows;
+			int x=0;
+
+			
+			for (int j = 0; j < contours[max_area_contour].size(); j++) {
+				cv::Point p = contours[max_area_contour][j];
+				if (p.y < y) {
+					y = p.y;
+					x = p.x;
+				}
+			}
+			
 			cv::cvtColor(dst, dst, cv::COLOR_GRAY2RGB);
 			cv::circle(dst, cv::Point(x, y), 10, cv::Scalar(0, 200, 0), 4, 8);
 
-
+			QueryPerformanceCounter(&end);
 			
 			cv::imshow("Image from camera", dst);
 
+			double time = static_cast<double>(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+
+			//cout << time << endl;
 
 			cvWaitKey(1);
-			printf("\t%d\n", cv_mat_image.at<unsigned char>(0, 0));
+			
 		}
+#pragma endregion
+
+#pragma region CloseCamera
 		
 		cam.StopAcquisition();
 		cam.Close();
@@ -67,6 +94,7 @@ int main(int argc, char* argv[])
 		
 		cvWaitKey(500);
 	}
+#pragma endregion
 	catch(xiAPIplus_Exception& exp)
 	{
 		printf("Error:\n");

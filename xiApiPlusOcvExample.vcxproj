@@ -144,9 +144,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="xiApiPlusOcv.cpp" />
-    <ClCompile Include="xiApiPlusOcvExample.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common.h" />
     <ClInclude Include="xiApiPlusOcv.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
