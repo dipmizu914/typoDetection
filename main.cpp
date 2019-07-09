@@ -100,6 +100,8 @@ int main(int argc, char* argv[])
 					x = p.x;
 				}
 			}
+
+			int a;
 			
 			cv::cvtColor(dst, dst, cv::COLOR_GRAY2RGB);
 			cv::rectangle(dst, keyLeftUpper, keyRightDown, cv::Scalar(0, 0, 200), 3, 4);
