@@ -21,5 +21,8 @@
     <ClInclude Include="common.h">
       <Filter>header</Filter>
     </ClInclude>
+    <ClInclude Include="keyOperation.h">
+      <Filter>header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

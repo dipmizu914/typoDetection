@@ -7,6 +7,7 @@ using namespace cv;
 using namespace std;
 
 #pragma region Parameters
+
 int cam_height=400;
 int cam_width = 500;
 
@@ -15,6 +16,7 @@ cv::Point keyRightDown = cv::Point(340, 310);
 
 
 #pragma endregion
+
 
 
 int main(int argc, char* argv[])
@@ -41,15 +43,27 @@ int main(int argc, char* argv[])
 		
 		printf("First pixel value \n");
 		XI_IMG_FORMAT format = cam.GetImageDataFormat();
+#pragma endregion[
+
+
+#pragma region prepare
+		Mat cv_mat_image = cam.GetNextImageOcvMat();
+		if (format == XI_RAW16 || format == XI_MONO16)
+			normalize(cv_mat_image, cv_mat_image, 0, 65536, NORM_MINMAX, -1, Mat());// 0 - 65536, 16 bit unsigned integer range
+
+		getKeyPosition(cv_mat_image, keyLeftUpper, keyRightDown, false);
 #pragma endregion
 		
 #pragma region Main_thread
 		int key = 0;
-		while (key!='q') {
+		while ((key=cv::waitKey(1))!='q') {
 			Mat cv_mat_image = cam.GetNextImageOcvMat();
 			if (format == XI_RAW16 || format == XI_MONO16)
 				normalize(cv_mat_image, cv_mat_image, 0, 65536, NORM_MINMAX, -1, Mat());// 0 - 65536, 16 bit unsigned integer range
 
+			if (key == 'h') {
+				getKeyPosition(cv_mat_image, keyLeftUpper, keyRightDown, false);
+			}
 
 			LARGE_INTEGER freq;
 			QueryPerformanceFrequency(&freq);
@@ -101,7 +115,6 @@ int main(int argc, char* argv[])
 
 			//cout << time << endl;
 
-			key=cvWaitKey(1);
 			
 		}
 #pragma endregion
